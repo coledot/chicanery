@@ -20,12 +20,16 @@ module Chicanery
       http_opts = { use_ssl: uri.scheme == 'https' }
       http_opts[:verify_mode] = OpenSSL::SSL::VERIFY_NONE unless options[:verify_ssl]
       start = Time.now
-      res = Net::HTTP.start uri.host, uri.port, http_opts do |https|
-        https.request req
+      Net::HTTP.start uri.host, uri.port, http_opts do |https|
+        res = https.request req
+        case res
+        when Net::HTTPSuccess
+          @duration, @code, @body = (Time.now - start), res.code, res.body
+          res.body
+        else
+          res.error!
+        end
       end
-      @duration, @code, @body = (Time.now - start), res.code, res.body
-      res.value #check for success via a spectactularly poorly named method
-      res.body
     end
   end
 end
