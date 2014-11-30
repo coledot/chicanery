@@ -17,7 +17,7 @@ module Chicanery
     def get
       req = Net::HTTP::Get.new path
       req.basic_auth options[:user], options[:password] if options[:user] and options[:password]
-      http_opts = { use_ssl: uri.scheme == 'https' }
+      http_opts = { use_ssl: uri.scheme == 'https', open_timeout: 1, read_timeout: 1 }
       http_opts[:verify_mode] = OpenSSL::SSL::VERIFY_NONE unless options[:verify_ssl]
       start = Time.now
       Net::HTTP.start uri.host, uri.port, http_opts do |https|
